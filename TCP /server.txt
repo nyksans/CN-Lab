@@ -1,0 +1,41 @@
+import java.io.*;
+import java.net.*;
+
+public class FileServer {
+    public static void main(String[] args) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(5000);
+            System.out.println("Server started. Waiting for client request...");
+
+            Socket socket = serverSocket.accept();
+            System.out.println("Client connected.");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            String fileName = in.readLine();
+            System.out.println("Client requested file: " + fileName);
+
+            File file = new File(fileName);
+            if (file.exists()) {
+                out.println("FOUND");
+                BufferedReader fileReader = new BufferedReader(new FileReader(file));
+                String line;
+                while ((line = fileReader.readLine()) != null) {
+                    out.println(line);
+                }
+                fileReader.close();
+                out.println("END_OF_FILE");
+                System.out.println("File sent successfully.");
+            } else {
+                out.println("NOT_FOUND");
+                System.out.println("Requested file not found.");
+            }
+
+            socket.close();
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
