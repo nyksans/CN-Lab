@@ -1,0 +1,32 @@
+import java.io.*;
+import java.net.*;
+
+public class FileClient {
+    public static void main(String[] args) {
+        try {
+            Socket socket = new Socket("localhost", 5000);
+            BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            System.out.print("Enter the file name to request from server: ");
+            String fileName = userInput.readLine();
+            out.println(fileName);
+
+            String response = in.readLine();
+            if ("FOUND".equals(response)) {
+                System.out.println("\nFile contents:\n----------------");
+                String line;
+                while (!(line = in.readLine()).equals("END_OF_FILE")) {
+                    System.out.println(line);
+                }
+            } else {
+                System.out.println("File not found on server.");
+            }
+
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
